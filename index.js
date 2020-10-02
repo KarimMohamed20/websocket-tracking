@@ -13,9 +13,9 @@ app.use(bodyParser.json())
 
 var con = mysql.createConnection({
   host: "localhost",
-  user: "root",
-  password: "",
-  database: "TrackingWebSocket"
+  user: "dplyr",
+  password: "dplyr",
+  database: "tracking"
 });
 
 server = http.createServer(app);
