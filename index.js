@@ -21,7 +21,7 @@ var con = mysql.createConnection({
 server = http.createServer(app);
 
 app.get("/ride", async function (req, res) {
-  await con.query("SELECT * FROM locations", function (err, result) {
+  await con.query("SELECT * FROM rides", function (err, result) {
     if (err) res.json(err);
     res.json(result)
   });
@@ -29,7 +29,8 @@ app.get("/ride", async function (req, res) {
 app.post("/ride/create", async function (req, res) {
   var rideName = req.body.rideName;
   var live = req.body.live;
-  con.query(`INSERT INTO locations (rideName,live) VALUES ('${rideName}',${live});`, function (err, result) {
+  var helperName = req.body.helperName;
+  con.query(`INSERT INTO rides (rideName,helperName,live) VALUES ('${rideName}',${helperName},${live});`, function (err, result) {
     if (err) res.json(err);
     res.json({ message: "Created Successfully!" })
   });
@@ -37,7 +38,7 @@ app.post("/ride/create", async function (req, res) {
 
 app.delete("/ride/delete", async function (req, res) {
   var rideId = req.body.rideId;
-  con.query(`DELETE FROM locations WHERE id = ${rideId};`, function (err, result) {
+  con.query(`DELETE FROM rides WHERE id = ${rideId};`, function (err, result) {
     if (err) res.json(err);
     res.json({ message: "Deleted Successfully!" })
   });
@@ -45,7 +46,7 @@ app.delete("/ride/delete", async function (req, res) {
 
 app.post("/ride/start", async function (req, res) {
   var rideId = req.body.rideId;
-  await con.query(`UPDATE locations SET live = true WHERE id = ${rideId};`, function (err, result) {
+  await con.query(`UPDATE rides SET live = true WHERE id = ${rideId};`, function (err, result) {
     if (err) res.json(err);
     res.json({ message: "Started Ride Successfully!" })
   });
@@ -53,7 +54,7 @@ app.post("/ride/start", async function (req, res) {
 
 app.post("/ride/stop", async function (req, res) {
   var rideId = req.body.rideId;
-  await con.query(`UPDATE locations SET live = false WHERE id = ${rideId};`, function (err, result) {
+  await con.query(`UPDATE rides SET live = false WHERE id = ${rideId};`, function (err, result) {
     if (err) res.json(err);
     res.json({ message: "Stopped Ride Successfully!" })
   });
@@ -65,7 +66,7 @@ var wss = new WebSocketServer({ server: server });
 wss.on('connection', function connection(ws) {
   ws.on('message', async function incoming(str) {
     var location = JSON.parse(str);
-    con.query(`SELECT live FROM locations WHERE id=${location.rideId}`, async function (err,result) {
+    con.query(`SELECT live FROM rides WHERE id=${location.rideId}`, async function (err,result) {
       result = JSON.stringify(result);
       result = JSON.parse(result);
       if (err) ws.send("{message:'Error'}");
@@ -83,8 +84,8 @@ wss.on('connection', function connection(ws) {
 
 
 async function updateCoordinates(location) {
-  var updateLat = `UPDATE locations set lat = '${location.lat}' WHERE id = ${location.rideId};`;
-  var updateLng = `UPDATE locations set lng = '${location.lng}' WHERE id = ${location.rideId};`;
+  var updateLat = `UPDATE rides set lat = '${location.lat}' WHERE id = ${location.rideId};`;
+  var updateLng = `UPDATE rides set lng = '${location.lng}' WHERE id = ${location.rideId};`;
   await con.query(updateLat, function (err, result) {
     if (err) throw err;
     console.log("Lat Updated!");
