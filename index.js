@@ -30,7 +30,7 @@ app.post("/ride/create", async function (req, res) {
   var rideName = req.body.rideName;
   var live = req.body.live;
   var helperName = req.body.helperName;
-  con.query(`INSERT INTO rides (rideName,helperName,live) VALUES ('${rideName}',${helperName},${live});`, function (err, result) {
+  con.query(`INSERT INTO rides (rideName,helperName,live) VALUES ('${rideName}','${helperName}',${live});`, function (err, result) {
     if (err) res.json(err);
     res.json({ message: "Created Successfully!" })
   });
