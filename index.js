@@ -83,7 +83,7 @@ wss.on('connection', function connection(ws) {
       if (result[0].live == 1) {
         wss.clients.forEach(function each(client) {
           if (client !== ws && client.readyState === WebSocket.OPEN) {
-            client.send(location.toString());
+            client.send(location);
           }
         });
         await updateCoordinates(location);
