@@ -73,13 +73,18 @@ var wss = new WebSocketServer({ server: server });
 wss.on('connection', function connection(ws) {
   ws.on('message', async function incoming(str) {
     var location = JSON.parse(str);
-    con.query(`SELECT live FROM rides WHERE id=${location.rideId}`, async function (err,result) {
+    con.query(`SELECT live FROM rides WHERE id=${location.rideId}`, async function (err, result) {
       result = JSON.stringify(result);
       result = JSON.parse(result);
       if (err) ws.send("{message:'Error'}");
       console.log(result[0])
 
-      if(result[0].live == 1){
+      if (result[0].live == 1) {
+        wss.clients.forEach(function each(client) {
+          if (client !== ws && client.readyState === WebSocket.OPEN) {
+            client.send(location.toString());
+          }
+        });
         await updateCoordinates(location);
         ws.send("{'message':'Success'}")
       } else {
