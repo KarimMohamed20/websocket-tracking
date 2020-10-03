@@ -73,19 +73,19 @@ app.post("/ride/stop", async function (req, res) {
 var wss = new WebSocketServer({ server: server });
 wss.on('connection', function connection(ws) {
   ws.on('message', async function incoming(str) {
-    var location = JSON.parse(str);
-    con.query(`SELECT live FROM rides WHERE id=${location.rideId}`, async function (err, result) {
-      result = JSON.stringify(result);
-      result = JSON.parse(result);
-      if (err) ws.send("{message:'Error'}");
-      console.log(result[0])
-      if (str == 'finish') {
-        wss.clients.forEach(function each(client) {
-          if (client !== ws && client.readyState === WebSocket.OPEN) {
-            client.send(str);
-          }
-        });
-      } else {
+    if (str == 'finish') {
+      wss.clients.forEach(function each(client) {
+        if (client !== ws && client.readyState === WebSocket.OPEN) {
+          client.send(str);
+        }
+      });
+    } else {
+      var location = JSON.parse(str);
+      con.query(`SELECT live FROM rides WHERE id=${location.rideId}`, async function (err, result) {
+        result = JSON.stringify(result);
+        result = JSON.parse(result);
+        if (err) ws.send("{message:'Error'}");
+        console.log(result[0])
         if (result[0].live == 1) {
           wss.clients.forEach(function each(client) {
             if (client !== ws && client.readyState === WebSocket.OPEN) {
@@ -97,8 +97,9 @@ wss.on('connection', function connection(ws) {
         } else {
           ws.send("{'message':'Error'}")
         }
-      }
-    })
+
+      })
+    }
   });
 });
 
