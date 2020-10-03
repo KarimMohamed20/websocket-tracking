@@ -79,17 +79,24 @@ wss.on('connection', function connection(ws) {
       result = JSON.parse(result);
       if (err) ws.send("{message:'Error'}");
       console.log(result[0])
-
-      if (result[0].live == 1) {
+      if (str == 'finish') {
         wss.clients.forEach(function each(client) {
           if (client !== ws && client.readyState === WebSocket.OPEN) {
             client.send(str);
           }
         });
-        await updateCoordinates(location);
-        ws.send("{'message':'Success'}")
       } else {
-        ws.send("{'message':'Error'}")
+        if (result[0].live == 1) {
+          wss.clients.forEach(function each(client) {
+            if (client !== ws && client.readyState === WebSocket.OPEN) {
+              client.send(str);
+            }
+          });
+          await updateCoordinates(location);
+          ws.send("{'message':'Success'}")
+        } else {
+          ws.send("{'message':'Error'}")
+        }
       }
     })
   });
