@@ -20,8 +20,15 @@ var con = mysql.createConnection({
 
 server = http.createServer(app);
 
-app.get("/ride", async function (req, res) {
+app.get("/rides", async function (req, res) {
   await con.query("SELECT * FROM rides", function (err, result) {
+    if (err) res.json(err);
+    res.json(result)
+  });
+})
+app.post("/ride", async function (req, res) {
+  var id = req.body.rideId;
+  await con.query(`SELECT * FROM rides WHERE id = ${id}`, function (err, result) {
     if (err) res.json(err);
     res.json(result)
   });
