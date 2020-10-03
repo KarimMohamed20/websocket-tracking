@@ -4,6 +4,7 @@ var express = require('express');
 var app = express();
 var http = require("http");
 var bodyParser = require('body-parser');
+const WebSocket = require('ws');
 
 //To parse URL encoded data
 app.use(bodyParser.urlencoded({ extended: false }))
